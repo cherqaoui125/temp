@@ -1,0 +1,379 @@
+=========================================================== RESTFul Web Services =========================================================================
+
+Présentation
+-------------
+	
+	+ Java API for RESTful Web Services (JAX-RS), is a set of APIs to developer REST service. JAX-RS is part of the JEE6 (JAX-RS 2.0 in JEE 7), and make developers 
+	  to develop REST web application easily.
+	  
+	+ REST est un style d'architecture qui est inspiré du modele de web. REST n'est pas :
+	
+		* Un standard
+		
+		* Un protocole
+		
+		* Un format d'echange
+		
+	+ Les RESTful web services permettent de développer des architectures orientées Ressources.
+	
+	+ Les RESTful web services sont stateless.
+	
+	+ Une ressource :
+	
+		* est identifiable (URI)
+		
+		* a un format de representation (Text, XML, HTML, JSON,...)
+				
+		* Manipulée par les methodes du protocole HTTP (GET, POST, DELETE, PUT) 
+
+
+JAX-RS - Implementations
+------------------------
+
+	+ Jersey (Implementation de référence de la spécification JAX-RS (JSR 311))
+	
+	+ RESTEasy (Implementation JBoss de la spécification JAX-RS (JSR 311))
+	
+	+ Apache CXF (Framework Apache pour le développement des web sevices)
+	
+
+Dependences MAVEN pour l'implementation Jersey (Implementation de référence de la spécification JAX-RS)
+------------------------------------------------------------------------------------------------------
+
+<dependencies>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+  		<groupId>com.sun.jersey</groupId>
+  		<artifactId>jersey-server</artifactId>
+  		<version>1.17.1</version>
+	</dependency>
+	
+	<dependency>
+    	<groupId>com.sun.jersey</groupId>
+    	<artifactId>jersey-core</artifactId>
+    	<version>1.17.1</version>
+	</dependency>
+	
+	<dependency>
+    	<groupId>com.sun.jersey</groupId>
+    	<artifactId>jersey-servlet</artifactId>
+    	<version>1.17.1</version>
+	</dependency>
+	
+	<dependency>
+ 		<groupId>com.sun.jersey</groupId>
+ 		<artifactId>jersey-bundle</artifactId>
+ 		<version>1.17.1</version>
+ 	</dependency>
+ 	
+ 	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-mapper-asl</artifactId>
+		<version>1.9.10</version>
+	</dependency>
+	
+ <dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-core-asl</artifactId>
+		<version>1.9.10</version>
+ </dependency>
+ 
+ <dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-xc</artifactId>
+		<version>1.9.10</version>
+ </dependency>
+ 
+ <dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-jaxrs</artifactId>
+		<version>1.9.10</version>
+ </dependency>
+	
+</dependencies>
+
+
+Configuration de la servlet Jersey au niveau du fichier web.xml
+--------------------------------------------------------------
+
+<web-app ...>
+
+  <servlet>
+	<servlet-name>jersey-serlvet</servlet-name>
+	<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+	
+	<init-param>
+		<param-name>com.sun.jersey.config.property.packages</param-name>
+		<param-value>com.mkyong.rest</param-value>
+	</init-param>
+	
+	<init-param>
+		<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+		<param-value>true</param-value>
+	</init-param>
+	
+	<load-on-startup>1</load-on-startup>
+	
+  </servlet>
+
+  <servlet-mapping>
+	<servlet-name>jersey-serlvet</servlet-name>
+	<url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+
+</web-app>	
+
+
+JAX-RS 2.0 Specification
+-------------------------
+
+JAX-RS provides portable APIs for developing, exposing and accessing Web applications designed and implemented in compliance with principles 
+of REST architectural style. The Java EE 6 release took the first step towards standardizing RESTful web service APIs by introducing a 
+Java API for RESTful web services (JAX-RS) [JSR 311]. JAX-RS ensures portability of REST API code across all Java EE-compliant application 
+servers. The latest version is JAX-RS 2.0 [JSR 339], which was released as part of the Java EE 7 platform.
+
+JAX-RS & Servlet 3.0
+--------------------
+
+With Servlet 3.0 there is no need of a web.xml file and the servlet container uses the value specified in the @ApplicationPath as the 
+servlet mapping (==<url-pattern></url-pattern>)
+
+@ApplicationPath("/*")
+public class RESTApplication extends Application 
+{
+	
+@Override
+public java.util.Set<Class<?>> getClasses()
+{
+	
+// Variables
+java.util.Set<Class<?>> col=new java.util.HashSet<Class<?>>();
+	
+// Ajout des resource classes
+col.add(rest.book.services.impl.TestService.class);
+
+
+// Reply
+return col;
+	
+}
+
+
+JSON/Object mapping avec JACKSON
+--------------------------------
+
+La librairie JACKSON (jackson-core-2.9.6.jar) permet de faire le mapping Java Object From/To JSON. La version 1.17.1 du framework Jersey intège Jackson.
+
+
+Configuration de la librairie Jackson dans Jersey
+--------------------------------------------------
+
+Action 1 : To make Jersey support JSON mapping, declares “jersey-json.jar” in the classpath.
+
+Action 2 : In web.xml, declares “com.sun.jersey.api.json.POJOMappingFeature” as “init-param” in Jersey mapped servlet. It will 
+	     make Jersey support JSON/object mapping.
+
+	<init-param>
+		<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+		<param-value>true</param-value>
+	</init-param>
+	
+Action 3 : Annotate the method with @Produces(MediaType.APPLICATION_JSON). Jersey will use Jackson to handle the JSON conversion automatically.
+	
+
+Mapping JAVA to/from JSON
+-------------------------
+
+Pour les objets simples, la librairie Jackson peut etre utilisée pour faire la mapping JAVA to/from JSON. Pour les objets complexes, il est recommander
+d'utiliser la librairie Gson de google pour faire ce mapping.
+
+Cycle de vie d'un service REST
+------------------------------
+
+Les classes web service peuvent utiliser les annotations de cycle de vie comme pour les servlets/EJB à savoir @PostConstruct et @PreDestroy
+
+
+Custom entity providers
+-----------------------
+
+JAX-RS enables developers to add custom entity providers to the application. The custom entity providers can be used for dealing
+with user-defined classes in the request as well as responses.
+
+The are two types of entity providers :
+
+	+ MessageBodyWriter
+	
+	+ MessageBodyReader
+	
+MessageBodyWriter : 
+
+			Java Object(s) ==> MessageBodyWriter ==> OutputStream
+			
+MessageBodyReader : 
+
+			InputStream ==> MessageBodyReader ==> Java Object(s)
+
+
+Description du RESTfull web service avec Web Application Description Language (WADL)
+------------------------------------------------------------------------------------
+
+Pour récuperer la description du RESTful web service, il faut taper l'URL suivante :
+
+			http(s)://hostname:$PORT/$WEB_CONTEXT/application.wadl
+
+Exemple : http://localhost:8000/rest1/application.wadl
+
+
+HTTP Response/status code
+-------------------------
+
+ 1xx : Informational
+ 
+ 2xx : Success
+ 
+ 3xx : Redirection
+ 
+ 4xx : Client Error
+ 
+ 5xx : Server Error
+ 
+ 
+ - La création de la requête s’appuie sur la patron Builder
+ 
+ - Création d’une chaîne d’appel de méthodes dont le type de retour est WebResource ou WebResource.Builder
+ 
+ - La chaîne d’appel se termine par les méthodes correspondant aux méthodes HTTP (GET, POST, …)
+ 
+ - La classe WebResource.Builder contient les méthodes de terminaison :
+ 
+			<T> get(Class<T> class) : appelle méthode GET avec un type de retour T
+			
+			<T> post(Class<T> class, Object entity) : appelle méthode POST en envoyant un contenu dans la requête
+			
+			<T> put(Class<T> class, Object entity) : appelle méthode PUT en envoyant un contenu dans la requête
+			
+			<T> delete(Class<T> class, Object entity) : appelle méthode DELETE en envoyant un contenu dans la requête
+
+La classe WebResource fournit des méthodes pour construire l’en-tête de la requête. Principales méthodes de WebResource :
+
+	** WebResource path(String) : définition d’un chemin
+
+	** WebResource queryParam(String key, String val) : paramètre requête
+
+	** Builder accept(MediaType) : type supporté par le client
+	
+	** Builder type(MediaType) : type envoyé par le client
+	
+	** Builder header(String name, Object value) : paramètre en-tête
+	
+	** Builder cookie(Cookie cookie) : ajoute un cookie
+
+	** Méthodes de terminaison disponibles	
+
+
+Client RESTful web services with Jersey-client 2.25.1 (JAX-RS 2.0)
+-----------------------------------------------------------------
+
+Let’s begin by adding the required dependencies (for Jersey JAX-RS client) in the pom.xml:
+
+<dependency>
+    <groupId>org.glassfish.jersey.core</groupId>
+    <artifactId>jersey-client</artifactId>
+    <version>2.25.1</version>
+</dependency>
+
+To use Jackson 2.x as JSON provider:
+
+<dependency>
+    <groupId>org.glassfish.jersey.media</groupId>
+    <artifactId>jersey-media-json-jackson</artifactId>
+    <version>2.25.1</version>
+</dependency>
+
+NB : The latest version of these dependencies can be found at jersey-client and jersey-media-json-jackson.
+
+=================== Code JAVA ================================
+
+// Creating an Instance of a Client
+Client client=ClientBuilder.newClient();
+
+// Creating a WebTarget    	
+WebTarget target=client.target("http://localhost:8082/chap1/test");	
+
+// Building an HTTP Request Invocation : An invocation builder instance is created one of the WebTarget.request() methods:
+Invocation.Builder request=target.request();
+
+// Invoking HTTP GET:
+String reply = request.get(String.class);
+
+// Invoking HTTP POST:
+request.post(Entity.entity(employee, MediaType.APPLICATION_JSON);
+
+	
+Client RESTful web services with Jersey 1.19.4 (JAX-RS 1.0)
+-----------------------------------------------------------
+
+Deux dépendences sont suffisantes : 
+
+<dependencies>
+    
+<dependency>
+  <groupId>com.sun.jersey</groupId>
+  <artifactId>jersey-client</artifactId>
+  <version>1.19.4</version>
+</dependency>
+
+<dependency>
+  <groupId>com.google.code.gson</groupId>
+  <artifactId>gson</artifactId>
+  <version>2.8.5</version>
+</dependency>
+
+</dependencies>
+
+=================== Code JAVA ================================
+
+import javax.ws.rs.core.MediaType;
+import com.google.gson.Gson;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+
+public class App 
+{
+    public static void main( String[] args )
+    {
+       
+
+    	// Creation du client
+    	Client client=Client.create();
+    	
+    	// Creation d'une instance de WebResource
+    	WebResource resource=client.resource("http://localhost:8082/arredarestws/ref/364");
+    	
+    	// Creation d'une instance de Gson
+    	Gson gson=new Gson();
+    	
+    	// Objet à envoyer dans la requete POST
+    	rest.client.RIB24 obj=new rest.client.RIB24();
+    	obj.setRib24("364780000000000000138706");
+    	
+    	// Appel au rest web services
+    	String reply=resource.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).post(String.class,gson.toJson(obj));
+    	
+    	// Conversion Json ==> Object
+    	rest.client.DetailAccount detail=gson.fromJson(reply, rest.client.DetailAccount.class);
+    	
+    	// Display
+    	System.out.println("Client : " + detail.getClient());
+    	
+	
+    }
+}
+

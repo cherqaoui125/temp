@@ -1,0 +1,79 @@
+
+=================================================== Classe JAVA =================================================
+
+import javax.naming.InitialContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+public class ApplicationContextListener implements ServletContextListener 
+{
+	
+	private final org.apache.log4j.Logger logger=org.apache.log4j.Logger.getLogger(ApplicationContextListener.class);
+	
+	@Override
+	public void contextInitialized(ServletContextEvent event)
+	{
+		
+		// Variables
+		javax.persistence.EntityManagerFactory emf=null;
+		javax.persistence.EntityManager em=null;
+		
+		try
+		{
+			
+		 // Logging
+		 logger.info("--- Start RESTFul web services API...");
+		 
+		 // Connexion à la base de reference
+		 emf=javax.persistence.Persistence.createEntityManagerFactory("WEBREF");
+		 em=emf.createEntityManager();
+		 		 
+		 // Caching
+		 rest.book.cache.MyCache.getInstance().setEntityManagerFactory(emf);
+		 rest.book.cache.MyCache.getInstance().setEntityManager(em);
+		 
+		 // Logging
+		 logger.info("=== Connection in success to WebRef database...");
+				
+		}catch(Exception exp)
+		{
+			
+			// Logging
+			logger.error("+++ "+exp.getMessage());
+			
+		}finally
+		{
+			
+			;
+						
+		}
+			
+	}
+	
+	@Override
+	public void contextDestroyed(ServletContextEvent event)
+	{
+		
+		// Close The EntityManager Factory &  The EntityManager 
+		
+		if (rest.book.cache.MyCache.getInstance().getEntityManager()!=null)
+			rest.book.cache.MyCache.getInstance().getEntityManager().close();
+		
+		if (rest.book.cache.MyCache.getInstance().getEntityManagerFactory()!=null)
+			rest.book.cache.MyCache.getInstance().getEntityManagerFactory().close();
+		
+		rest.book.cache.MyCache.getInstance().setEntityManagerFactory(null);
+		rest.book.cache.MyCache.getInstance().setEntityManager(null);
+			
+	}
+
+}
+
+
+=================================================== Configuration du descripteur de déploiement =================================================
+
+<listener>
+
+	<listener-class>web.capture.api.listeners.ApplicationContextListener</listener-class>
+
+</listener>
