@@ -1,6 +1,18 @@
+- Job spécifique JOSS de mise à jour code agence des chèques BMCI ==> Anomalie (Voir les logs)
 
-- Mettre à jour la structure des flux SAB
 
-- Job de mise à jour du code agence des chèques IA ==> A developper
 
-- Job de mise à jour du code agence des LCN IA ==> Structure de l'enregistrement à matcher
+- serveur de traitement chèque 172.17.0.6 : Il faut revoir la config du job ci-dessous pour supprimer le
+  parametre 'BufferSize'
+
+
+- Mail de retour à chafik : Attente des flux LCN pour derouler les tests. ==> Liste de journées de traitement
+ LCN disponibles sur 172.16.0.4
+
+- Job spécique ==>Patch correction des parametres à fournir à UPDATE_CDE_AGE (Chèque)
+
+
+- Supprimer le lien de bootstrap 4 dossier de bootstrapecreative
+
+
+- moteur JOSS ==> Absence de la methode ==> journalisation en mode DEBUG eu lieu de ERROR
