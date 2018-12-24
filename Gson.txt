@@ -1,0 +1,112 @@
+Serialisation (toJson)
+---------------------
+
+ - Par défaut, tous les champs de la classe et des classes mères sont utilisés lors de la sérialisation même ceux déclarés private.
+
+ - Tous les champs marqués avec le mot clé transient sont ignorés lors de la sérialisation. Les champs static ET les champs nuls sont aussi par
+   défaut ignorés durant la sérialisation ce qui permet d'avoir des représentations JSON plus compacte.
+
+ - Attention : il ne faut pas sérialiser un objet qui contient une référence circulaire (Penser à utiliser une exclusion).
+ 
+ - Il est possible de fournir une collection en paramètre de la méthode toJson().
+ 
+Deserialisation (fromJson)
+-------------------------
+
+ - La classe doit posséder un constructeur par défaut. Le nom de la classe n'a pas d'importance, par contre la casse du nom
+   des champs doit correspondre aux clés dans la représentation JSON. Gson utilise l'introspection pour alimenter les
+   champs, donc il n'est pas obligatoire de disposer de setter dans la classe
+   
+Personnalisation de la sérialisation/désérialisation
+----------------------------------------------------
+
+ - La classe GsonBuilder est une fabrique qui permet de créer une instance de type Gson qui soit configurable. Cette classe met en oeuvre 
+ le motif de conception Builder : chaque méthode qui permet de configurer une fonctionnalité de l'instance à créer renvoie l'instance 
+ du builder elle-même, ce qui permet de chaîner les invocations. La méthode create() permet d'obtenir l'instance.
+
+ - Il est possible de configurer l'instance de type Gson créée en utilisant un GsonBuilder pour qu'elle tienne compte des
+   objets null en invoquant la méthode serializeNulls().
+   
+ 
+Exclusion de champs
+-------------------
+
+Gson propose plusieurs solutions pour exclure certains champs des opérations de sérialisation. Si ces solutions ne sont
+pas suffisantes, il est toujours possible de créer ses propres Serializer et Deserializer.
+
+Exclusion de champs sur la base de modificateurs
+==================================================
+
+Par défaut, les champs qui sont définis avec le mot clé transient ou static sont ignorés par Gson.
+Il est possible de configurer l'instance de type Gson pour qu'elle ignore les champs possédant certains modificateurs en
+invoquant la méthode excludeFieldsWithModifier() de la classe GsonBuilder. L'invocation de la méthode
+excludeFieldsWithModifiers() permet de modifier le comportement par défaut.
+
+Exemple : gs=builder.serializeNulls().excludeFieldsWithModifiers(Modifier.PROTECTED).create(); // Exclure les champs avec le modificateur protected
+
+Stratégies d'exclusion personnalisées
+=====================================
+
+Pour des besoins plus particuliers, il est possible de définir sa propre stratégie d'exclusion et de la faire appliquer à
+l'instance de type Gson. Cette stratégie permet de décider si une classe ou un champ doit être pris en compte lors des
+opérations de Gson. Pour ce faire, il faut définir une classe qui implémente l'interface ExclusionStrategy.
+
+L'exemple ci-dessous va définir une annotation qui est un simple marqueur et qui sera utilisée par une stratégie
+d'exclusion personnalisée pour ignorer les champs marqués avec celle-ci.
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.FIELD, ElementType.TYPE })
+public @interface ExclureDeGson {
+}
+
+Il faut utiliser l'annotation sur les champs ou les classes concernées
+
+public class MonBean {
+@ExclureDeGson
+private String champ10;
+private String champ11;
+private String champ12;
+public MonBean() {
+super();
+}
+// ...
+}
+
+La stratégie personnalisée va ignorer toutes les classes et les champs annotés avec l'annotation ExclureDeGson.
+
+public class MonExclusionStrategy implements ExclusionStrategy 
+{
+public MonExclusionStrategy() {}
+
+@Override
+public boolean shouldSkipClass(final Class<?> clazz) 
+{
+return clazz.getAnnotation(ExclureDeGson.class) != null;
+}
+
+@Override
+public boolean shouldSkipField(final FieldAttributes f) 
+{
+return f.getAnnotation(ExclureDeGson.class) != null;
+}
+
+}
+
+Pour demander à Gson d'utiliser la stratégie d'exclusion, il faut en passer une instance en paramètre de la méthode
+setExclusionsStrategies() de la classe GsonBuilder.
+
+
+Annotations de Gson
+-------------------
+
+Gson propose plusieurs annotations pour faciliter la configuration des opérations de sérialisation/désérialisation :
+
+	@Expose : permet de préciser si un champ doit être utilisé ou non lors des opérations de sérialisation et de
+			  désérialisation.
+
+	@SerializedName : permet de préciser le nom du champ qui sera utilisé lors des opérations de sérialisation/désérialisation.
+
+	@Since : permet de définir à partir de quelle version le champ ou la classe doit être pris en compte.
+	
+	@Until : permet de définir jusqu'à quelle version le champ ou la classe doit être pris en compte
+
