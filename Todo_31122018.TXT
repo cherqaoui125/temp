@@ -1,0 +1,6 @@
+
+ - Dosssier 'Guests_OS_ISO'
+
+ - Installer 'Extensions pack' + 'Guests additions'
+
+ - Opérations : Cloner une VM, exporter une VM
